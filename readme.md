@@ -66,7 +66,7 @@ python3 tos_mcp_server.py
 | `tos_delete_object` | 删除对象 | 对象管理 | ✅ 已测试 | trae | - |
 | `tos_presigned_url` | 生成预签名URL | 预签名 | ✅ 已测试 | trae | - |
 | `tos_image_process` | 基础图片处理 | 图片处理 | ⏳ 待测试 | - | - |
-| `tos_image_info` | 获取图片信息 | 图片处理 | ⏳ 待测试 | - | 已修复私有访问bug |
+| `tos_image_info` | 获取图片信息 | 图片处理 | ✅ 已测试 | Cline | 已修复私有访问bug |
 | `tos_image_persist` | 图片处理持久化 | 图片处理 | ⏳ 待测试 | - | - |
 | `tos_video_snapshot` | 视频截帧 | 视频处理 | ⏳ 待测试 | - | - |
 | `tos_video_info` | 获取视频信息 | 视频处理 | ⏳ 待测试 | - | 已修复私有访问bug |
