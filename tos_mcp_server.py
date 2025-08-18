@@ -238,29 +238,6 @@ async def list_tools() -> List[Tool]:
             }
         ),
         
-        # 图片处理工具
-        Tool(
-            name="tos_image_process",
-            description="基础图片处理",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "bucket_name": {
-                        "type": "string",
-                        "description": "存储桶名称"
-                    },
-                    "object_key": {
-                        "type": "string",
-                        "description": "图片对象键名"
-                    },
-                    "process": {
-                        "type": "string",
-                        "description": "图片处理参数（如: resize,w_100,h_100）"
-                    }
-                },
-                "required": ["bucket_name", "object_key", "process"]
-            }
-        ),
         Tool(
             name="tos_image_info",
             description="获取图片信息",
@@ -279,9 +256,10 @@ async def list_tools() -> List[Tool]:
                 "required": ["bucket_name", "object_key"]
             }
         ),
+        # 图片处理工具
         Tool(
-            name="tos_image_persist",
-            description="图片处理持久化",
+            name="tos_image_process",
+            description="图片处理（组合操作，支持多种处理参数）",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -295,7 +273,7 @@ async def list_tools() -> List[Tool]:
                     },
                     "process": {
                         "type": "string",
-                        "description": "图片处理参数"
+                        "description": "图片处理参数。参数格式通常为 'image/操作,参数'，如: 'image/resize,h_100' 或 'image/format,jpg'。常用操作包括：resize(缩放),format(格式转换),quality(质量),crop(裁剪),rotate(旋转)等。"
                     },
                     "save_bucket": {
                         "type": "string",
@@ -313,7 +291,7 @@ async def list_tools() -> List[Tool]:
         # 视频处理工具
         Tool(
             name="tos_video_snapshot",
-            description="视频截帧",
+            description="视频截帧（支持持久化）",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -327,17 +305,25 @@ async def list_tools() -> List[Tool]:
                     },
                     "time": {
                         "type": "number",
-                        "description": "截帧时间点（秒）",
-                        "default": 1.0
+                        "description": "截帧时间点（毫秒），如300表示第300毫秒",
+                        "default": 300
                     },
                     "format": {
                         "type": "string",
                         "description": "输出格式",
                         "enum": ["jpg", "png"],
                         "default": "jpg"
+                    },
+                    "save_bucket": {
+                        "type": "string",
+                        "description": "保存截帧图片的存储桶名称"
+                    },
+                    "save_key": {
+                        "type": "string",
+                        "description": "保存截帧图片的对象键名"
                     }
                 },
-                "required": ["bucket_name", "object_key"]
+                "required": ["bucket_name", "object_key", "save_bucket", "save_key"]
             }
         ),
         Tool(
@@ -386,8 +372,6 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
             return await image_process(arguments)
         elif name == "tos_image_info":
             return await image_info(arguments)
-        elif name == "tos_image_persist":
-            return await image_persist(arguments)
         elif name == "tos_video_snapshot":
             return await video_snapshot(arguments)
         elif name == "tos_video_info":
@@ -592,18 +576,43 @@ async def presigned_url(args: Dict[str, Any]) -> List[TextContent]:
 
 # 图片处理功能实现
 async def image_process(args: Dict[str, Any]) -> List[TextContent]:
-    """基础图片处理"""
+    """图片处理（支持持久化）"""
     bucket_name = args["bucket_name"]
     object_key = args["object_key"]
     process = args["process"]
+    save_bucket = args["save_bucket"]
+    save_key = args["save_key"]
     
     try:
-        url = f"https://{bucket_name}.{TOS_ENDPOINT}/{object_key}?x-tos-process=image/{process}"
+        # 使用官方SDK写法，通过save_bucket和save_object参数执行图片处理和持久化
+        resp = tos_client.get_object(
+            bucket=bucket_name,
+            key=object_key,
+            process=process,
+            save_bucket=base64.b64encode(save_bucket.encode("utf-8")).decode("utf-8"),
+            save_object=base64.b64encode(save_key.encode("utf-8")).decode("utf-8")
+        )
+        
+        # 读取处理结果以确保处理完成
+        processed_data = resp.read()
+        
+        # 等待一下确保回写完成
+        import time
+        time.sleep(1.0)
+        
+        # 生成处理后对象的预签名 URL
+        download_url = tos_client.pre_signed_url(tos.HttpMethodType.Http_Method_Get, save_bucket, save_key, 3600)
+        
         result = {
-            "processed_url": url,
-            "bucket": bucket_name,
-            "key": object_key,
-            "process": process
+            "presigned_url": download_url.signed_url,
+            "source_bucket": bucket_name,
+            "source_key": object_key,
+            "save_bucket": save_bucket,
+            "save_key": save_key,
+            "process": process,
+            "processed_size": len(processed_data),
+            "expires_in": 3600,
+            "status": "processed"
         }
         return [TextContent(type="text", text=json.dumps(result, indent=2, ensure_ascii=False))]
     except Exception as e:
@@ -643,49 +652,51 @@ async def image_info(args: Dict[str, Any]) -> List[TextContent]:
     except Exception as e:
         return [TextContent(type="text", text=f"获取图片信息失败: {str(e)}")]
 
-async def image_persist(args: Dict[str, Any]) -> List[TextContent]:
-    """图片处理持久化"""
+
+# 视频处理功能实现
+async def video_snapshot(args: Dict[str, Any]) -> List[TextContent]:
+    """视频截帧（支持持久化）"""
     bucket_name = args["bucket_name"]
     object_key = args["object_key"]
-    process = args["process"]
+    time = args.get("time", 300)
+    format = args.get("format", "jpg")
     save_bucket = args["save_bucket"]
     save_key = args["save_key"]
     
     try:
-        persist_params = f"saveas,b_{base64.b64encode(save_bucket.encode()).decode()},o_{base64.b64encode(save_key.encode()).decode()}"
-        url = f"https://{bucket_name}.{TOS_ENDPOINT}/{object_key}?x-tos-process=image/{process}|{persist_params}"
+        # 构建视频截帧处理参数，时间单位为毫秒
+        process = f"video/snapshot,t_{int(time)},f_{format}"
+        
+        # 使用官方SDK写法，通过save_bucket和save_object参数执行视频截帧和持久化
+        resp = tos_client.get_object(
+            bucket=bucket_name,
+            key=object_key,
+            process=process,
+            save_bucket=base64.b64encode(save_bucket.encode("utf-8")).decode("utf-8"),
+            save_object=base64.b64encode(save_key.encode("utf-8")).decode("utf-8")
+        )
+        
+        # 读取处理结果以确保截帧完成
+        processed_data = resp.read()
+        
+        # 等待一下确保回写完成
+        import time as time_module
+        time_module.sleep(1.0)
+        
+        # 生成截帧图片的预签名 URL
+        download_url = tos_client.pre_signed_url(tos.HttpMethodType.Http_Method_Get, save_bucket, save_key, 3600)
         
         result = {
-            "persist_url": url,
+            "presigned_url": download_url.signed_url,
             "source_bucket": bucket_name,
             "source_key": object_key,
             "save_bucket": save_bucket,
             "save_key": save_key,
-            "process": process,
-            "note": "访问此URL执行持久化处理"
-        }
-        return [TextContent(type="text", text=json.dumps(result, indent=2, ensure_ascii=False))]
-    except Exception as e:
-        return [TextContent(type="text", text=f"图片持久化失败: {str(e)}")]
-
-# 视频处理功能实现
-async def video_snapshot(args: Dict[str, Any]) -> List[TextContent]:
-    """视频截帧"""
-    bucket_name = args["bucket_name"]
-    object_key = args["object_key"]
-    time = args.get("time", 1.0)
-    format = args.get("format", "jpg")
-    
-    try:
-        process = f"video/snapshot,t_{int(time * 1000)},f_{format}"
-        url = f"https://{bucket_name}.{TOS_ENDPOINT}/{object_key}?x-tos-process={process}"
-        
-        result = {
-            "snapshot_url": url,
-            "bucket": bucket_name,
-            "key": object_key,
             "time": time,
-            "format": format
+            "format": format,
+            "processed_size": len(processed_data),
+            "expires_in": 3600,
+            "status": "processed"
         }
         return [TextContent(type="text", text=json.dumps(result, indent=2, ensure_ascii=False))]
     except Exception as e:
@@ -727,7 +738,10 @@ async def video_info(args: Dict[str, Any]) -> List[TextContent]:
 
 async def main():
     """主函数"""
-    from mcp.server.stdio import stdio_server
+    try:
+        from mcp.server.stdio import stdio_server
+    except ImportError:
+        from mcp.server import stdio_server
     
     async with stdio_server() as (read_stream, write_stream):
         await server.run(
