@@ -135,10 +135,10 @@ cp .env.example .env
 ### 生成预签名 url
 ![](doc/test-record/6.png)
 
-### 下载文件 到本地
+### 下载TOS文件 到本地
 ![](doc/test-record/7.png)
 
-### 上传本地文件
+### 上传本地文件 到TOS
 ![](doc/test-record/8.png)
 
 ### 列举桶内对象
@@ -150,10 +150,10 @@ cp .env.example .env
 ### 获取图片元信息
 ![](doc/test-record/11.png)
 
-### 图像处理
+### 图像处理，并回写，生成 presign url
 ![](doc/test-record/12.png)
 
-### 视频截帧
+### 视频截帧，并回写，生成 presign url
 ![](doc/test-record/13.png)
 
 
