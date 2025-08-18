@@ -615,12 +615,21 @@ async def image_info(args: Dict[str, Any]) -> List[TextContent]:
     object_key = args["object_key"]
     
     try:
-        url = f"https://{bucket_name}.{TOS_ENDPOINT}/{object_key}?x-tos-process=image/info"
+        # 生成带图片处理参数的预签名URL
+        process_key = f"{object_key}?x-tos-process=image/info"
+        url = tos_client.pre_signed_url(
+            tos.HttpMethodType.Http_Method_Get, 
+            bucket_name, 
+            process_key, 
+            3600
+        )
+        
         result = {
-            "info_url": url,
+            "info_url": url.signed_url,
             "bucket": bucket_name,
             "key": object_key,
-            "note": "访问此URL获取图片信息"
+            "expires_in": 3600,
+            "note": "访问此预签名URL获取图片信息"
         }
         return [TextContent(type="text", text=json.dumps(result, indent=2, ensure_ascii=False))]
     except Exception as e:
@@ -680,12 +689,21 @@ async def video_info(args: Dict[str, Any]) -> List[TextContent]:
     object_key = args["object_key"]
     
     try:
-        url = f"https://{bucket_name}.{TOS_ENDPOINT}/{object_key}?x-tos-process=video/info"
+        # 生成带视频处理参数的预签名URL
+        process_key = f"{object_key}?x-tos-process=video/info"
+        url = tos_client.pre_signed_url(
+            tos.HttpMethodType.Http_Method_Get, 
+            bucket_name, 
+            process_key, 
+            3600
+        )
+        
         result = {
-            "info_url": url,
+            "info_url": url.signed_url,
             "bucket": bucket_name,
             "key": object_key,
-            "note": "访问此URL获取视频信息"
+            "expires_in": 3600,
+            "note": "访问此预签名URL获取视频信息"
         }
         return [TextContent(type="text", text=json.dumps(result, indent=2, ensure_ascii=False))]
     except Exception as e:

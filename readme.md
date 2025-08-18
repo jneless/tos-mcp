@@ -52,9 +52,25 @@ python3 tos_mcp_server.py
 
 详细使用方法请参考 [USAGE.md](USAGE.md) 文件。
 
-## 测试
-* 在 claude code 中完成测试
-![](doc/img/1.png)
+## API 测试状态
+
+| API 名称 | 功能描述 | 分类 | 测试状态 | 测试环境 | 备注 |
+|---------|---------|------|---------|---------|------|
+| `tos_create_bucket` | 创建存储桶 | 桶管理 | ✅ 已测试 | trae | - |
+| `tos_list_buckets` | 列举存储桶 | 桶管理 | ✅ 已测试 | trae | - |
+| `tos_get_bucket_meta` | 获取存储桶元数据 | 桶管理 | ✅ 已测试 | trae | - |
+| `tos_delete_bucket` | 删除存储桶 | 桶管理 | ✅ 已测试 | trae | - |
+| `tos_put_object` | 上传对象 | 对象管理 | ✅ 已测试 | trae | - |
+| `tos_get_object` | 下载对象 | 对象管理 | ✅ 已测试 | trae | - |
+| `tos_list_objects` | 列举对象 | 对象管理 | ✅ 已测试 | trae | - |
+| `tos_delete_object` | 删除对象 | 对象管理 | ✅ 已测试 | trae | - |
+| `tos_presigned_url` | 生成预签名URL | 预签名 | ✅ 已测试 | trae | - |
+| `tos_image_process` | 基础图片处理 | 图片处理 | ⏳ 待测试 | - | - |
+| `tos_image_info` | 获取图片信息 | 图片处理 | ⏳ 待测试 | - | 已修复私有访问bug |
+| `tos_image_persist` | 图片处理持久化 | 图片处理 | ⏳ 待测试 | - | - |
+| `tos_video_snapshot` | 视频截帧 | 视频处理 | ⏳ 待测试 | - | - |
+| `tos_video_info` | 获取视频信息 | 视频处理 | ⏳ 待测试 | - | 已修复私有访问bug |
+
 
 
 ## TOS 文档
