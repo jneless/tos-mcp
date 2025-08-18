@@ -100,20 +100,61 @@ cp .env.example .env
 
 | API 名称 | 功能描述 | 分类 | 测试状态 | 测试环境 | 备注 |
 |---------|---------|------|---------|---------|------|
-| `tos_create_bucket` | 创建存储桶 | 桶管理 | ✅ 已测试 | trae | - |
-| `tos_list_buckets` | 列举存储桶 | 桶管理 | ✅ 已测试 | trae | - |
-| `tos_get_bucket_meta` | 获取存储桶元数据 | 桶管理 | ✅ 已测试 | trae | - |
-| `tos_delete_bucket` | 删除存储桶 | 桶管理 | ✅ 已测试 | trae | - |
-| `tos_put_object` | 上传对象 | 对象管理 | ✅ 已测试 | trae | - |
-| `tos_get_object` | 下载对象 | 对象管理 | ✅ 已测试 | trae | - |
-| `tos_list_objects` | 列举对象 | 对象管理 | ✅ 已测试 | trae | - |
-| `tos_delete_object` | 删除对象 | 对象管理 | ✅ 已测试 | trae | - |
-| `tos_presigned_url` | 生成预签名URL | 预签名 | ✅ 已测试 | trae | - |
+| `tos_create_bucket` | 创建存储桶 | 桶管理 | ✅ 已测试 | Cline | - |
+| `tos_list_buckets` | 列举存储桶 | 桶管理 | ✅ 已测试 | Cline | - |
+| `tos_get_bucket_meta` | 获取存储桶元数据 | 桶管理 | ✅ 已测试 | Cline | - |
+| `tos_delete_bucket` | 删除存储桶 | 桶管理 | ✅ 已测试 | Cline | - |
+| `tos_put_object` | 上传对象 | 对象管理 | ✅ 已测试 | Cline | - |
+| `tos_get_object` | 下载对象 | 对象管理 | ✅ 已测试 | Cline | - |
+| `tos_list_objects` | 列举对象 | 对象管理 | ✅ 已测试 | Cline | - |
+| `tos_delete_object` | 删除对象 | 对象管理 | ✅ 已测试 | Cline | - |
+| `tos_presigned_url` | 生成预签名URL | 预签名 | ✅ 已测试 | Cline | - |
 | `tos_image_process` | 基础图片处理 | 图片处理 | ✅ 已测试 | Cline | 回写，并提供 URL 下载 |
 | `tos_image_info` | 获取图片信息 | 图片处理 | ✅ 已测试 | Cline | - |
 | `tos_video_snapshot` | 视频截帧 | 视频处理 | ✅ 已测试 | Cline | - |
 | `tos_video_info` | 获取视频信息 | 视频处理 | ✅ 已测试 | Cline  | 回写，并提供 URL 下载 |
 
+
+## 测试图片
+
+### Cline 配置测试
+![](doc/test-record/1.png)
+
+### 创建bucket
+![](doc/test-record/2.png)
+
+### list bucket
+![](doc/test-record/3.png)
+
+### 删除 bucket
+![](doc/test-record/4.png)
+
+### 获取 bucket 元数据
+![](doc/test-record/5.png)
+
+### 生成预签名 url
+![](doc/test-record/6.png)
+
+### 下载文件 到本地
+![](doc/test-record/7.png)
+
+### 上传本地文件
+![](doc/test-record/8.png)
+
+### 列举桶内对象
+![](doc/test-record/9.png)
+
+### 删除文件
+![](doc/test-record/10.png)
+
+### 获取图片元信息
+![](doc/test-record/11.png)
+
+### 图像处理
+![](doc/test-record/12.png)
+
+### 视频截帧
+![](doc/test-record/13.png)
 
 
 ## TOS 文档
