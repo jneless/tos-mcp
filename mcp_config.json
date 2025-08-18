@@ -1,14 +1,15 @@
-{
-  "mcpServers": {
-    "tos": {
-      "command": "python3",
-      "args": ["tos_mcp_server.py"],
-      "env": {
-        "TOS_ACCESS_KEY": "${TOS_ACCESS_KEY}",
-        "TOS_SECRET_KEY": "${TOS_SECRET_KEY}",
-        "TOS_REGION": "${TOS_REGION:-cn-beijing}",
-        "TOS_ENDPOINT": "${TOS_ENDPOINT}"
+  {
+    "mcpServers": {
+      "tos-mcp-server": {
+        "command": "uv",
+        "args": ["run", "tos-mcp-server"],
+        "cwd": "${workspaceFolder}/tos-mcp",
+        "env": {
+          "TOS_ACCESS_KEY": "{TOS_ACCESS_KEY}",
+          "TOS_SECRET_KEY": "{TOS_SECRET_KEY}",
+          "TOS_REGION": "{TOS_REGION}",
+          "TOS_ENDPOINT": "{TOS_ENDPOINT}"
+        }
       }
     }
   }
-}
