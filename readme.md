@@ -11,8 +11,6 @@
 # Linux/macOS
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Windows
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 #### 克隆项目和安装依赖
@@ -177,3 +175,6 @@ cp .env.example .env
 * 视频截帧（Python SDK）:https://www.volcengine.com/docs/6349/1157340
 * 获取视频信息（Python SDK）:https://www.volcengine.com/docs/6349/1157341
 * 获取视频信息（Python SDK）:https://www.volcengine.com/docs/6349/1157343
+
+## Appendix
+* 本项目参考 https://github.com/dinghuazhou/sample-mcp-server-tos 
